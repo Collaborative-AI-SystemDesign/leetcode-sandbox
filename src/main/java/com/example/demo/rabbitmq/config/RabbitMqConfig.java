@@ -6,6 +6,7 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -21,36 +22,50 @@ public class RabbitMqConfig {
 
     private final RabbitMqProperties rabbitMqProperties;
 
-    @Value("${rabbitmq.queue.name}")
-    private String queueName;
-
-    @Value("${rabbitmq.exchange.name}")
+    @Value("${rabbitmq.submission.exchange.name}")
     private String exchangeName;
 
-    @Value("${rabbitmq.routing.key}")
-    private String routingKey;
+    @Value("${rabbitmq.submission.request.queue.name}")
+    private String requestQueueName;
 
-    // org.springframework.amqp.core.Queue
-    @Bean
-    public Queue queue() {
-        return new Queue(queueName);
-    }
+    @Value("${rabbitmq.submission.request.routing.key}")
+    private String requestRoutingKey;
 
-    /**
-     * 지정된 Exchange 이름으로 Direct Exchange Bean 을 생성
-     */
+    @Value("${rabbitmq.submission.result.queue.name}")
+    private String resultQueueName;
+
+    @Value("${rabbitmq.submission.result.routing.key}")
+    private String resultRoutingKey;
+
     @Bean
-    public DirectExchange directExchange() {
+    public DirectExchange submissionExchange() {
         return new DirectExchange(exchangeName);
     }
 
-    /**
-     * 주어진 Queue 와 Exchange 을 Binding 하고 Routing Key 을 이용하여 Binding Bean 생성
-     * Exchange 에 Queue 을 등록한다고 이해하자
-     **/
     @Bean
-    public Binding binding(Queue queue, DirectExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
+    public Queue requestQueue() {
+        return QueueBuilder.nonDurable(requestQueueName).build();
+    }
+
+    @Bean
+    public Queue resultQueue() {
+        return QueueBuilder.nonDurable(resultQueueName).build();
+    }
+
+    @Bean
+    public Binding requestBinding() {
+        return BindingBuilder
+                .bind(requestQueue())
+                .to(submissionExchange())
+                .with(requestRoutingKey);
+    }
+
+    @Bean
+    public Binding resultBinding() {
+        return BindingBuilder
+                .bind(resultQueue())
+                .to(submissionExchange())
+                .with(resultRoutingKey);
     }
 
     /**

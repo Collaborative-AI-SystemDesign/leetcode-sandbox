@@ -13,17 +13,6 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // TODO: 필요 시 핸들러 추가
-
-    // 1. 사용자 정의 예외 처리 (예: CustomException)
-    // CustomException에 HttpStatus 필드를 추가하여 유연하게 처리 가능
-    // 예: new CustomException("에러 발생", HttpStatus.BAD_REQUEST);
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException ex) {
-        HttpStatus status = ex.getHttpStatus() != null ? ex.getHttpStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
-        return new ResponseEntity<>(ApiResponse.fail(ex.getMessage()), status);
-    }
-
     // 2. @Valid 어노테이션 유효성 검사 실패 시 처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(MethodArgumentNotValidException ex) {
