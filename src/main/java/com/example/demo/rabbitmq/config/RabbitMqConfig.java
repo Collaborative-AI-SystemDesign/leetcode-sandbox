@@ -2,11 +2,13 @@ package com.example.demo.rabbitmq.config;
 
 import com.example.demo.rabbitmq.properties.RabbitMqProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -79,6 +81,14 @@ public class RabbitMqConfig {
         connectionFactory.setUsername(rabbitMqProperties.getUsername());
         connectionFactory.setPassword(rabbitMqProperties.getPassword());
         return connectionFactory;
+    }
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory() {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory());
+        factory.setMessageConverter(jackson2JsonMessageConverter());
+        return factory;
     }
 
     /**
