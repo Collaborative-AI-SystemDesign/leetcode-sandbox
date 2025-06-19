@@ -24,7 +24,11 @@ public class SubmissionConsumer {
     @Value("${rabbitmq.submission.result.routing.key}")
     private String resultRoutingKey;
 
-    @RabbitListener(queues = "${rabbitmq.submission.request.queue.name}")
+    @RabbitListener(
+            queues = "${rabbitmq.submission.request.queue.name}",
+            ackMode = "NONE"
+
+    )
     public void handleSubmissionRequest(SubmissionRequest request) {
         SubmissionResult executionResult = processor.processSubmission(request);
         log.info("Sending processing result to result queue: {}", executionResult);
