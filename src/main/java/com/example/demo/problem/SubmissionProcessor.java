@@ -14,7 +14,7 @@ public class SubmissionProcessor {
         Long submissionId = request.getSubmissionId();
         Long contestId = request.getContestId();
         try {
-            executeJavaCode(request);
+            busyWait(2L);
             return new SubmissionResult(
                     submissionId,
                     contestId,
@@ -33,5 +33,17 @@ public class SubmissionProcessor {
         // 실제로는 Docker 컨테이너나 샌드박스 환경에서 실행
         // 시뮬레이션: 실제 코드 실행
         Thread.sleep(2000);
+    }
+
+    public static void busyWait(long seconds) {
+        // 1초는 1,000,000,000 나노초입니다.
+        long durationInNanos = seconds * 1_000_000_000L;
+        long startTime = System.nanoTime();
+
+        // 현재 시간이 시작 시간 + 대기 시간보다 작을 동안 루프를 계속 실행합니다.
+        while ((System.nanoTime() - startTime) < durationInNanos) {
+            // 이 루프를 계속해서 돌면서 CPU를 점유합니다.
+            // 안에는 아무런 코드도 실행할 필요가 없습니다.
+        }
     }
 }
